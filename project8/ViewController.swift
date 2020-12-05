@@ -18,6 +18,9 @@ class ViewController: UIViewController {
     var activatedButtons = [UIButton]()
     var solutions = [String]()
     
+    var correctAnswerd = 0
+
+    
     var score = 0 {
         didSet {
             scoreLabel.text = "Score: \(score)"
@@ -134,6 +137,9 @@ class ViewController: UIViewController {
                 let letterButton = UIButton(type: .system)
                 letterButton.titleLabel?.font = UIFont.systemFont(ofSize: 36)
                 letterButton.setTitle("WWW", for: .normal)
+                letterButton.layer.borderWidth = 2
+                letterButton.layer.cornerRadius = 5
+                letterButton.layer.borderColor = UIColor.gray.cgColor
                 letterButton.addTarget(self, action: #selector(letterTapped), for: .touchUpInside)
                 let frame = CGRect(x: col * width, y: row * height, width: width, height: height)
                 letterButton.frame = frame
@@ -166,6 +172,7 @@ class ViewController: UIViewController {
         guard let answerText = currnetAnswer.text else { return }
         
         if let solutionPosition = solutions.firstIndex(of: answerText) {
+            correctAnswerd += 1
             activatedButtons.removeAll()
             
             var splitAnswer = answersLabel.text?.components(separatedBy: "\n")
@@ -175,11 +182,24 @@ class ViewController: UIViewController {
             currnetAnswer.text = ""
             score += 1
             
-            if score % 7 == 0 {
+            
+            if correctAnswerd % 7 == 0 {
                 let ac = UIAlertController(title: "Well done", message: "Are you ready for the next level?", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "let's go", style: .default, handler: levelUp))
                 present(ac,animated: true)
             }
+        }else {
+            score -= 1
+            let ac = UIAlertController(title: "Wrong Answer", message: "try another answer", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(ac,animated: true)
+            currnetAnswer.text = ""
+            
+            for button in activatedButtons {
+                button.isHidden = false
+            }
+            activatedButtons.removeAll()
+            
         }
         
     }
